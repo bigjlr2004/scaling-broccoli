@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.VisualBasic;
 using Roommates.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Roommates.Repositories
 {
-    public class RoomateRepository:BaseRepository
+    public class RoomateRepository : BaseRepository
 
     {
         public RoomateRepository(string connectionString) : base(connectionString) { }
@@ -25,6 +26,41 @@ namespace Roommates.Repositories
         ///  public Room Room { get; set; }
         /// </summary>
 
+        public List<Roommate> GetAllRoomates()
+        {
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+
+                    cmd.CommandText = "SELECT Id, FirstName, LastName, RentPortion, MoveInDate FROM Roommate";
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        List<Roommate> roommates = new List<Roommate>();
+
+                        Roommate roommate = null;
+                        while (reader.Read())
+                        {
+                            roommate = new Roommate
+                            {
+
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
+                                MovedInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                            };
+                            roommates.Add(roommate);
+                        }
+                        return roommates;
+                    }
+
+                }
+            }
+        } 
         public Roommate GetById(int id)
         {
             using (SqlConnection conn = Connection)
@@ -32,7 +68,7 @@ namespace Roommates.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT FirstName, LastName, RentPortion, MoveInDate, Room.Id, Room.Name, Room.MaxOccupancy
+                    cmd.CommandText = @"SELECT FirstName, LastName, RentPortion, MoveInDate, RoomId, Room.Id, Room.Name, Room.MaxOccupancy
                                     FROM Roommate
                                     JOIN Room on Room.Id = Roommate.RoomId     
                                      WHERE Roommate.Id =@id";
@@ -52,10 +88,11 @@ namespace Roommates.Repositories
                                 LastName = reader.GetString(reader.GetOrdinal("LastName")),
                                 RentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion")),
                                 MovedInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate")),
+                                
                                 Room = new Room
                                 {
-                                    Id = id,
                                     Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Id = reader.GetInt32(reader.GetOrdinal("RoomId")),
                                     MaxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy")),
                                 }
 

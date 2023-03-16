@@ -2,6 +2,7 @@
 using Roommates.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,42 @@ namespace Roommates.Repositories
     {
         public ChoreRepository(string connectionString) : base(connectionString) { }
 
+        public List<Chore> GetUnAssignedChores()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT RoommateChore.RoommateId, RoommateChore.ChoreID, Chore.Id, Chore.Name
+                                        FROM RoommateChore
+                                         RIGHT JOIN Chore on RoommateChore.ChoreID = Chore.Id
+                                        WHERE RoommateChore.ChoreID is null";
+                                        
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        List<Chore> chores = new List<Chore>();
+                        while (reader.Read())
+                        {
+                            int idColumnPosition = reader.GetOrdinal("Id");
+                            int idValue = reader.GetInt32(idColumnPosition);
+                            int nameColumnPosition = reader.GetOrdinal("Name");
+                            string nameValue = reader.GetString(nameColumnPosition);
+
+                            Chore chore = new Chore
+                            {
+                                Id = idValue,
+                                Name = nameValue,
+                            };
+                            chores.Add(chore);
+                        }
+                        return chores;
+                    }
+                                        
+                }
+            }
+        }
         public void Insert(Chore chore)
         {
             using (SqlConnection conn = Connection)
@@ -52,6 +89,25 @@ namespace Roommates.Repositories
                         }
                         return chore;
                     }
+                }
+            }
+        }
+
+        public void AssignChore(int roommateId, int choreId)
+        {
+                        using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO RoommateChore (roommateId, choreId)
+                                               OUTPUT INSERTED.Id
+                                               VALUES (@roommateId, @choreId)";
+                    cmd.Parameters.AddWithValue("@roommateId",roommateId);
+                    cmd.Parameters.AddWithValue("@choreId", choreId);
+                    int id = (int)cmd.ExecuteScalar();
+
+                    
                 }
             }
         }
