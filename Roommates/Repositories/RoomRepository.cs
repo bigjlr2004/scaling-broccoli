@@ -21,6 +21,25 @@ namespace Roommates.Repositories
         /// it does not get anything from the database, so there is nothing to return.
         /// </summary>
         
+        public void Update(Room room)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"Update Room
+                                        SET Name = @name,
+                                        MaxOccupancy = @maxOccupancy
+                                        WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@name", room.Name);
+                    cmd.Parameters.AddWithValue("@maxOccupancy", room.MaxOccupancy);
+                    cmd.Parameters.AddWithValue("@id", room.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public void Insert(Room room)
         {
             using(SqlConnection conn = Connection)
