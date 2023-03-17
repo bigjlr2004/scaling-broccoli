@@ -129,6 +129,31 @@ namespace Roommates
                         Console.Write("Press any key to continue");
                         Console.ReadKey();
                         break;
+                    case ("Delete a room"):
+                        List<Room> RoomsToDelete = roomRepo.GetAll();
+                        foreach (Room r2d in RoomsToDelete)
+                        {
+                            Console.WriteLine($"{r2d.Id} - {r2d.Name} Max Occupancy({r2d.MaxOccupancy})");
+                        }
+                        Console.WriteLine("Which room would you like to delete?");
+                        int selectedRoomIdToDelete = int.Parse(Console.ReadLine());
+                        Room selectedRoomToDelete = RoomsToDelete.FirstOrDefault(rd => rd.Id == selectedRoomIdToDelete);
+                        Console.WriteLine($"Are you sure you want to delete {selectedRoomToDelete.Name}");
+                        string CustomerSaidYes = Console.ReadLine();
+                        if (CustomerSaidYes.ToLower() == "y" || CustomerSaidYes.ToLower() == "yes")
+                        {
+                            roomRepo.Delete(selectedRoomIdToDelete);
+                            List<Room> RoomsAfterDelete = roomRepo.GetAll();
+                            foreach (Room r2d in RoomsAfterDelete)
+                            {
+                                Console.WriteLine($"{r2d.Id} - {r2d.Name} Max Occupancy({r2d.MaxOccupancy})");
+                            }
+                            Console.WriteLine("Press any key to continue.");
+                            Console.ReadKey();
+                            break;
+                        }                        
+
+                        break;
                     case ("Add a chore"):
                         Console.Write("Chore name: ");
                         string chore2AddName = Console.ReadLine();
@@ -186,6 +211,7 @@ namespace Roommates
                 "Search for a roomate",
                 "Add a room",
                 "Update a room",
+                "Delete a room",
                 "Add a chore",
                 "Assign a chore to roommate",
                 "Exit"
