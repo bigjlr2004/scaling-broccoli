@@ -68,7 +68,7 @@ namespace Roommates
                         break;
                     case ("Show unassigned chores"):
                         List<Chore> unassignedChores = choreRepo.GetUnAssignedChores();
-                        Console.Write("Unassigned Chores");
+                        Console.WriteLine("Unassigned Chores");
                         foreach (Chore c in unassignedChores)
                         {
                          Console.WriteLine($"{c.Name} has an Id of {c.Id} ");
@@ -152,7 +152,30 @@ namespace Roommates
                             Console.ReadKey();
                             break;
                         }                        
-
+                        break;
+                    case ("Delete a chore"):
+                        List<Chore> ChoresToDelete = choreRepo.GetAll();
+                        foreach (Chore chd in ChoresToDelete)   
+                        {
+                            Console.WriteLine($"{chd.Id} - {chd.Name}");
+                        }
+                        Console.WriteLine("Which chore would you like to delete?");
+                        int SelectedChoreIdToDelete = int.Parse(Console.ReadLine());
+                        Chore selectedChoreToDelete = ChoresToDelete.FirstOrDefault(c2d => c2d.Id == SelectedChoreIdToDelete);
+                        Console.WriteLine($"Are you sure you want to delte the {selectedChoreToDelete.Name}");
+                        string CustomerSaidY = Console.ReadLine();
+                        if (CustomerSaidY.ToLower() == "y" || CustomerSaidY.ToLower() == "yes")
+                        {
+                            choreRepo.Delete(SelectedChoreIdToDelete);
+                            List<Chore> ChoresAfterDelete = choreRepo.GetAll();
+                            foreach (Chore cad in ChoresAfterDelete)
+                            {
+                                Console.WriteLine($"{cad.Id} - {cad.Name}");
+                            }
+                            Console.WriteLine("Press any key to continue.");
+                            Console.ReadKey ();
+                            break;
+                        }
                         break;
                     case ("Add a chore"):
                         Console.Write("Chore name: ");
@@ -229,6 +252,7 @@ namespace Roommates
                 "Add a room",
                 "Update a room",
                 "Delete a room",
+                "Delete a chore",
                 "Add a chore",
                 "Update a chore",
                 "Assign a chore to roommate",

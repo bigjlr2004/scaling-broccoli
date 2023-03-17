@@ -3,6 +3,7 @@ using Roommates.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -125,6 +126,34 @@ namespace Roommates.Repositories
                     cmd.Parameters.AddWithValue("@name", chore.Name);
                     cmd.Parameters.AddWithValue("@id", chore.Id);
 
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+
+
+        public void Delete(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"DELETE FROM Chore WHERE Id = @id
+                                       DELETE FROM RoommateChore WHERE ChoreID = @id";
+
+                    /// <summary>
+                    // ///                             ALTER TABLE RoommateChore
+                    //                                DROP CONSTRAINT RoommateChore;
+                    //                                ALTER TABLE RoommateChore
+                    //                                ADD CONSTRAINT FK_ChoreID
+                    //                                FOREIGN KEY(ChoreID )
+                    //                                REFERENCES Chore(ID )
+                    //                                ON DELETE CASCADE";
+                    /// </summary>
+
+                    cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
                 }
             }
